@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xmlns:gedmo="http://gediminasm.org/schemas/orm/doctrine-extensions-mapping"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                                      http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+
+    <mapped-superclass name="Creativestyle\Component\Notification\Model\Notification">
+        <id name="id" column="id" type="integer">
+            <generator strategy="AUTO" />
+        </id>
+        <many-to-one field="subscriber" target-entity="Creativestyle\Component\Notification\Model\SubscriberInterface" on-delete="SET NULL" inversed-by="notifications">
+            <join-column name="subscriber_id" referenced-column-name="id" nullable="true" />
+        </many-to-one>
+        <many-to-one field="broadcaster" target-entity="Creativestyle\Component\Notification\Model\BroadcasterInterface">
+            <join-column name="broadcaster_id" referenced-column-name="id" on-delete="SET NULL" nullable="true"/>
+        </many-to-one>
+        <field name="objectId" column="object_id" type="integer" />
+        <field name="isRead" column="is_read" type="boolean" />
+        <field name="objectType" column="object_type" type="string" />
+        <field name="type" column="type" type="string" />
+        <field name="createdAt" column="created_at" type="datetime" />
+        <field name="updatedAt" column="updated_at" type="datetime" nullable="true"/>
+        <field name="sentAt" column="sent_at" type="datetime" nullable="true"/>
+    </mapped-superclass>
+
+</doctrine-mapping>

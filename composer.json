@@ -1,0 +1,35 @@
+{
+    "name": "creativestyle/notification-bundle",
+    "type": "library",
+    "description": "Notification Bundle for Symfony2 projects.",
+    "keywords": ["notification"],
+    "homepage": "http://creativestyle.pl",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "creativestyle",
+            "homepage": "http://creativestyle.pl"
+        },
+        {
+            "name":     "Jakub Kanclerz"
+        }
+    ],
+    "require": {
+        "php":                            ">=5.3.3",
+        "symfony/framework-bundle":       "~2.3",
+        "symfony/twig-bundle":            "~2.3",
+        "creativestyle/notification":     "dev-master"
+    },
+    "require-dev": {
+        "phpspec/phpspec": "~2.0"
+    },
+    "config": {
+        "bin-dir": "bin"
+    },
+    "autoload": {
+        "psr-4": { "Creativestyle\\Bundle\\NotificationBundle\\": "" }
+    },
+    "autoload-dev": {
+        "psr-4": { "Creativestyle\\Bundle\\NotificationBundle\\spec\\": "spec/" }
+    }
+}

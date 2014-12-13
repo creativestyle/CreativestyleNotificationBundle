@@ -1,0 +1,222 @@
+<?php
+
+namespace Creativestyle\Bundle\NotificationBundle\DependencyInjection;
+
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\Config\FileLocator;
+use Symfony\Component\HttpKernel\DependencyInjection\Extension;
+use Symfony\Component\DependencyInjection\Loader;
+use Creativestyle\Bundle\NotificationBundle\EventListener\NotificatorListener;
+use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\Reference;
+use Creativestyle\Bundle\NotificationBundle\NotificationEvents;
+/**
+ * This is the class that loads and manages your bundle configuration
+ *
+ * To learn more see {@link http://symfony.com/doc/current/cookbook/bundles/extension.html}
+ */
+class CreativestyleNotificationExtension extends Extension
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function load(array $configs, ContainerBuilder $container)
+    {
+        $configuration = new Configuration();
+        $config = $this->processConfiguration($configuration, $configs);
+
+        $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $loader->load('services.xml');
+
+        $this->createServices($container, $config);
+    }
+
+    protected function createServices(ContainerBuilder $container, $config)
+    {   
+        if ($config['notificator']['database']['enable']) {
+            $this->createDBNotificator($container, $config);
+        }
+
+        if ($config['notificator']['email']['enable']) {
+            $this->createEmailNotificator($container, $config);
+        }
+
+        if ($config['notification']['insite']['enable']) {
+            if (!$config['notificator']['database']['enable']) {
+                throw new \RuntimeException('db notificator should be enabled');
+            }
+            $this->createInsiteNotificator($container, $config);
+        }
+
+        $strategyProviderKey = isset($config['builder']['strategy_provider']) ? $config['builder']['strategy_provider'] : 'creativestyle.notification.build.strategy_provider';
+        if ($strategyProviderKey == 'creativestyle.notification.build.strategy_provider') {
+            $this->createStrategyProvider($container, $strategyProviderKey);
+        }
+
+        $this->createBuilder($container, $strategyProviderKey);
+    }
+
+    protected function createDBNotificator($container, $config)
+    {
+        $dbNotificatorKey = 'creativestyle_notification.notificator.db_notificator';
+        $container->setDefinition(
+            $dbNotificatorKey,
+            $this->getDBNotificatorDefinition($container)
+        );
+
+        $container->setDefinition(
+            'creativestyle_notification.listener.db_notificator',
+            $this->getListenerDefinition(
+                $dbNotificatorKey
+            )
+        );
+    }
+
+    protected function createEmailNotificator($container, $config)
+    {
+        $emailNotificatorKey = 'creativestyle_notification.notificator.email_notificator';
+
+        $templateResolverKey = 'creativestyle.notificator.email.template_resolver';
+        $templates = $config['notificator']['email']['templates'];
+
+        $container->setDefinition(
+            $templateResolverKey,
+            $this->getTemplateResolverDefinition($container, $templateResolverKey, $templates)
+        );
+
+        $container->setDefinition(
+            $emailNotificatorKey,
+            $this->getEmailNotificatorDefinition($container, $templateResolverKey)
+        );
+        
+        $container->setDefinition(
+            'creativestyle_notification.listener.email_notificator',
+            $this->getListenerDefinition(
+                $emailNotificatorKey
+            )
+        );
+    }
+
+    protected function createInsiteNotificator($container, $config)
+    {
+        $templateResolverKey = 'creativestyle.notificator.insite.template_resolver';
+        $templates = $config['notification']['insite']['templates'];
+
+        $container->setDefinition(
+            $templateResolverKey,
+            $this->getTemplateResolverDefinition($container, $templateResolverKey, $templates)
+        );
+
+        $container->setDefinition(
+            'creativestyle.provider.insite_notification',
+            $this->getInsiteNotificationProviderDefinition($container, $templateResolverKey)
+        );
+    }
+
+    protected function getInsiteNotificationProviderDefinition($container, $templateResolverKey)
+    {
+        $emailNotificatorClass = $container->getParameter('creativestyle.provider.insite_notification.class');
+        $definition = new Definition($emailNotificatorClass);
+        $definition
+            ->addArgument(new Reference('twig'))
+            ->addArgument(new Reference($templateResolverKey))
+            ->addArgument(new Reference('creativestyle.repository.notification'))
+            ->addArgument(new Reference('creativestyle.object_hydrator'))
+        ;
+
+        return $definition;
+    }
+
+
+
+    protected function getDBNotificatorDefinition($container)
+    {
+        $dbNotificatorClass = $container->getParameter('creativestyle_notification.notificator.db_notificator.class');
+        $definition = new Definition($dbNotificatorClass);
+        $definition
+            ->addArgument(new Reference('creativestyle_notification.manager.notification_manager'))
+        ;
+
+        return $definition;
+    }
+
+    protected function getTemplateResolverDefinition($container, $templateResolverKey, $templates)
+    {
+        $templateResolverClass = $container->getParameter('creativestyle.notificator.email.template_resolver.class');
+        $definition = new Definition($templateResolverClass, array($templates));
+
+        return $definition;
+    }
+
+    protected function getEmailNotificatorDefinition($container, $templateResolverKey)
+    {
+        $emailNotificatorClass = $container->getParameter('creativestyle_notification.notificator.email_notificator.class');
+        $definition = new Definition($emailNotificatorClass);
+        $definition
+            ->addArgument(new Reference('creativestyle_notification.mailer'))
+            ->addArgument(new Reference($templateResolverKey))
+        ;
+
+        return $definition;
+    }
+
+    protected function getListenerDefinition($notificatorKey)
+    {
+        $listenerClass = 'Creativestyle\Bundle\NotificationBundle\EventListener\NotificatorListener';
+
+        $definition = new Definition($listenerClass);
+        $definition
+            ->addMethodCall('setNotificator', array(
+                new Reference($notificatorKey)
+            ))
+            ->addTag(
+                'kernel.event_listener',
+                array(
+                    'event' => NotificationEvents::SEND,
+                    'method' => 'notify'
+                )
+            )
+        ;
+
+        return $definition;
+    }
+
+    protected function createStrategyProvider($container, $strategyProviderKey)
+    {   
+        $container->setDefinition(
+            $strategyProviderKey,
+            $this->getStrategyProviderDefinition(
+                $container
+            )
+        );
+    }
+
+    protected function getStrategyProviderDefinition($container)
+    {
+        $builderClass = $container->getParameter('creativestyle_notification.builder.strategy_provider.class');
+        $definition = new Definition($builderClass);
+
+        return $definition;
+    }
+
+    protected function createBuilder($container, $strategyProviderKey)
+    {   
+        $container->setDefinition(
+            'creativestyle_notification.builder.notification_builder',
+            $this->getBuilderDefinition(
+                $strategyProviderKey
+            )
+        );
+    }
+
+    protected function getBuilderDefinition($strategyProviderKey)
+    {
+        $builderClass = 'Creativestyle\Component\Notification\Builder\NotificationBuilder';
+        $definition = new Definition($builderClass);
+        $definition
+            ->addArgument(new Reference($strategyProviderKey))
+        ;
+
+        return $definition;
+    }
+}
