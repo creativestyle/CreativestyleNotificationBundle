@@ -18,7 +18,10 @@
         <parameter key="creativestyle_notification.builder.strategy_provider.class">Creativestyle\Component\Notification\Builder\StrategyProvider</parameter>
         <parameter key="creativestyle_notification.notification.build.base_strategy.class">Creativestyle\Component\Notification\Builder\Strategy\BaseBuildStrategy</parameter>
         <parameter key="creativestyle.object_hydrator.class">Creativestyle\Bundle\NotificationBundle\Hydrator\NotificationObjectHydrator</parameter>
+        <parameter key="creativestyle.provider.prerender.insite_notification.class">Creativestyle\Bundle\NotificationBundle\Provider\PrerenderInsiteProvider</parameter>
         <parameter key="creativestyle.provider.insite_notification.class">Creativestyle\Bundle\NotificationBundle\Provider\InsiteProvider</parameter>
+        <parameter key="creativestyle_notification.template.renderer.class">Creativestyle\Bundle\NotificationBundle\Template\Renderer</parameter>
+        <parameter key="creativestyle_notification.factory.insite_notification.class">Creativestyle\Bundle\NotificationBundle\Factory\InsiteNotificationFactory</parameter>
     </parameters>
     <services>
         <service 
@@ -60,11 +63,33 @@
                 <argument>%creativestyle_notification.notification.class%</argument>
         </service>
 
+        <service id="creativestyle.repository.insite_notification"
+                 class="%creativestyle_notification.notification_repository.class%"
+                 factory-service="doctrine.orm.entity_manager"
+                 factory-method="getRepository">
+                <argument>%creativestyle_notification.model.insite_notification.class%</argument>
+        </service>
+
         <service 
             id="creativestyle.object_hydrator"
             class="%creativestyle.object_hydrator.class%"
         >
             <argument type="service" id="doctrine.orm.entity_manager" />
+        </service>
+
+        <service 
+            id="creativestyle_notification.template.renderer"
+            class="%creativestyle_notification.template.renderer.class%"
+        >
+            <argument type="service" id="twig" />
+        </service>
+        <service 
+            id="creativestyle_notification.factory.insite_notification"
+            class="%creativestyle_notification.factory.insite_notification.class%"
+        >
+            <argument>%creativestyle_notification.model.insite_notification.class%</argument>
+            <argument type="service" id="creativestyle_notification.template.renderer" />
+            <argument type="service" id="creativestyle.notificator.insite.template_resolver" />
         </service>
     </services>
 </container>

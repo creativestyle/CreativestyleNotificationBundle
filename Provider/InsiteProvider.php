@@ -9,18 +9,18 @@ use Creativestyle\Component\Notification\Model\InsiteNotification;
 
 class InsiteProvider
 {
-    protected $twig;
+    protected $renderer;
     protected $templateResolver;
     protected $repository;
     protected $hydrator;
 
     public function __construct(
-        $twig,
+        $renderer,
         $templateResolver,
         $repository,
         $hydrator
     ) {
-        $this->twig = $twig;
+        $this->renderer = $renderer;
         $this->templateResolver = $templateResolver;
         $this->repository = $repository;
         $this->hydrator = $hydrator;
@@ -56,22 +56,14 @@ class InsiteProvider
 
     protected function transformToInsiteNotification(NotificationInterface $notification)
     {
-        $context = array(
-            'notification' => $notification,
-            'object' => $notification->getObject(),
-            'subscriber' => $notification->getSubscriber(),
-            'broadcaster' => $notification->getBroadcaster(),
-        );
-
         $templateName = $this->templateResolver->getTemplate($notification->getType());
-        $context = $this->twig->mergeGlobals($context);
-        $template = $this->twig->loadTemplate($templateName);
-
-        $title = $template->renderBlock('subject', $context);
-        $textContent = $template->renderBlock('body_text', $context);
-        $htmlContent = $template->renderBlock('body_html', $context);
-        $link = $template->renderBlock('link', $context);
-        $imageSrc = $template->renderBlock('image_src', $context);
+        $template = $this->templateResolver->getTemplate($notification->getType());
+                
+        $title = $this->renderer->render($template, 'subject', $notification);
+        $textContent = $this->renderer->render($template, 'body_text', $notification);
+        $htmlContent = $this->renderer->render($template, 'body_html', $notification);
+        $link = $this->renderer->render($template, 'link', $notification);
+        $imageSrc = $this->renderer->render($template, 'image_src', $notification);
 
         $insiteNotification = new InsiteNotification();
         $insiteNotification

@@ -9,15 +9,10 @@
         {
             "name": "creativestyle",
             "homepage": "http://creativestyle.pl"
-        },
-        {
-            "name":     "Jakub Kanclerz"
         }
     ],
     "require": {
-        "php":                            ">=5.3.3",
-        "symfony/framework-bundle":       "~2.3",
-        "symfony/twig-bundle":            "~2.3",
+        "php":                      ">=5.3.3",
         "creativestyle/notification":     "dev-master"
     },
     "require-dev": {

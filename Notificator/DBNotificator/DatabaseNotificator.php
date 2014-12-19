@@ -7,15 +7,21 @@ use Creativestyle\Component\Notification\Model\NotificationInterface;
 
 class DatabaseNotificator implements NotificatorInterface
 {
-    protected $messageManager;
+    protected $manager;
+    protected $insiteNotificationFactory;
 
-    public function __construct($messageManager)
+    public function __construct($manager, $insiteNotificationFactory = null)
     {
-        $this->messageManager = $messageManager;
+        $this->manager = $manager;
+        $this->insiteNotificationFactory = $insiteNotificationFactory;
     }
 
     public function notify(NotificationInterface $notification)
     {
-        $this->messageManager->saveNotification($notification);
+        if ($this->insiteNotificationFactory !== null) {
+            $this->insiteNotificationFactory->createNew($notification);
+        }
+
+        $this->manager->saveNotification($notification);
     }
 }

@@ -29,6 +29,10 @@ class CreativestyleNotificationExtension extends Extension
         $loader->load('services.xml');
 
         $this->createServices($container, $config);
+        $container->setParameter(
+            'creativestyle_notification.model.insite_notification.class',
+            $config['notification']['insite']['model_class']
+        );
     }
 
     protected function createServices(ContainerBuilder $container, $config)
@@ -61,7 +65,7 @@ class CreativestyleNotificationExtension extends Extension
         $dbNotificatorKey = 'creativestyle_notification.notificator.db_notificator';
         $container->setDefinition(
             $dbNotificatorKey,
-            $this->getDBNotificatorDefinition($container)
+            $this->getDBNotificatorDefinition($container, $config['notification']['insite']['enable'])
         );
 
         $container->setDefinition(
@@ -74,20 +78,24 @@ class CreativestyleNotificationExtension extends Extension
 
     protected function createEmailNotificator($container, $config)
     {
-        $emailNotificatorKey = 'creativestyle_notification.notificator.email_notificator';
+        if (isset($config['notificator']['email']['service'])) {
+            $emailNotificatorKey = $config['notificator']['email']['service'];
+        } else {
+            $emailNotificatorKey = 'creativestyle_notification.notificator.email_notificator';
 
-        $templateResolverKey = 'creativestyle.notificator.email.template_resolver';
-        $templates = $config['notificator']['email']['templates'];
+            $templateResolverKey = 'creativestyle.notificator.email.template_resolver';
+            $templates = $config['notificator']['email']['templates'];
 
-        $container->setDefinition(
-            $templateResolverKey,
-            $this->getTemplateResolverDefinition($container, $templateResolverKey, $templates)
-        );
+            $container->setDefinition(
+                $templateResolverKey,
+                $this->getTemplateResolverDefinition($container, $templateResolverKey, $templates)
+            );
 
-        $container->setDefinition(
-            $emailNotificatorKey,
-            $this->getEmailNotificatorDefinition($container, $templateResolverKey)
-        );
+            $container->setDefinition(
+                $emailNotificatorKey,
+                $this->getEmailNotificatorDefinition($container, $templateResolverKey)
+            );
+        }
         
         $container->setDefinition(
             'creativestyle_notification.listener.email_notificator',
@@ -107,10 +115,18 @@ class CreativestyleNotificationExtension extends Extension
             $this->getTemplateResolverDefinition($container, $templateResolverKey, $templates)
         );
 
-        $container->setDefinition(
-            'creativestyle.provider.insite_notification',
-            $this->getInsiteNotificationProviderDefinition($container, $templateResolverKey)
-        );
+        if (!$config['notification']['insite']['prerender']) {
+            $container->setDefinition(
+                'creativestyle.provider.insite_notification',
+                $this->getInsiteNotificationProviderDefinition($container, $templateResolverKey)
+            );
+        } else {
+            $container->setDefinition(
+                'creativestyle.provider.insite_notification',
+                $this->getInsitePrerenderedNotificationProviderDefinition($container, $templateResolverKey)
+            );
+        }
+        
     }
 
     protected function getInsiteNotificationProviderDefinition($container, $templateResolverKey)
@@ -118,7 +134,7 @@ class CreativestyleNotificationExtension extends Extension
         $emailNotificatorClass = $container->getParameter('creativestyle.provider.insite_notification.class');
         $definition = new Definition($emailNotificatorClass);
         $definition
-            ->addArgument(new Reference('twig'))
+            ->addArgument(new Reference('creativestyle_notification.template.renderer'))
             ->addArgument(new Reference($templateResolverKey))
             ->addArgument(new Reference('creativestyle.repository.notification'))
             ->addArgument(new Reference('creativestyle.object_hydrator'))
@@ -127,9 +143,19 @@ class CreativestyleNotificationExtension extends Extension
         return $definition;
     }
 
+    protected function getInsitePrerenderedNotificationProviderDefinition($container, $templateResolverKey)
+    {
+        $emailNotificatorClass = $container->getParameter('creativestyle.provider.prerender.insite_notification.class');
+        $definition = new Definition($emailNotificatorClass);
+        $definition
+            ->addArgument(new Reference('creativestyle.repository.insite_notification'))
+        ;
+
+        return $definition;
+    }
 
 
-    protected function getDBNotificatorDefinition($container)
+    protected function getDBNotificatorDefinition($container, $enableInsite)
     {
         $dbNotificatorClass = $container->getParameter('creativestyle_notification.notificator.db_notificator.class');
         $definition = new Definition($dbNotificatorClass);
@@ -137,6 +163,12 @@ class CreativestyleNotificationExtension extends Extension
             ->addArgument(new Reference('creativestyle_notification.manager.notification_manager'))
         ;
 
+        if ($enableInsite) {
+            $definition
+                ->addArgument(new Reference('creativestyle_notification.factory.insite_notification'))
+            ;
+        }
+        
         return $definition;
     }
 
@@ -193,7 +225,8 @@ class CreativestyleNotificationExtension extends Extension
 
     protected function getStrategyProviderDefinition($container)
     {
-        $builderClass = $container->getParameter('creativestyle_notification.builder.strategy_provider.class');
+        $builderClass = $container
+            ->getParameter('creativestyle_notification.builder.strategy_provider.class');
         $definition = new Definition($builderClass);
 
         return $definition;
