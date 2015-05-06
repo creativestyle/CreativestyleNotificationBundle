@@ -33,7 +33,11 @@ class InsiteProvider
         $collection = array();
 
         foreach ($notifications as $notify) {
-            $this->hydrateObject($notify);
+            try {
+                $this->hydrateObject($notify);
+            } catch (\RuntimeException $e) {
+                continue;
+            }
             $collection[] = $this->transformToInsiteNotification($notify);
         }
 
@@ -47,7 +51,12 @@ class InsiteProvider
         $collection = array();
 
         foreach ($notifications as $notify) {
-            $this->hydrateObject($notify);
+            try {
+                $this->hydrateObject($notify);
+            } catch (\RuntimeException $e) {
+                continue;
+            }
+            
             $collection[] = $this->transformToInsiteNotification($notify)->getArrayRepresentation();
         }
 

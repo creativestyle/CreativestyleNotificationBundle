@@ -2,15 +2,18 @@
 
 <doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                  xmlns:gedmo="http://gediminasm.org/schemas/orm/doctrine-extensions-mapping"
                   xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
-                                      http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+                          http://raw.github.com/doctrine/doctrine2/master/doctrine-mapping.xsd">
 
     <mapped-superclass name="Creativestyle\Component\Notification\Model\InsiteNotification">
         <id name="id" column="id" type="integer">
             <generator strategy="AUTO" />
         </id>
-        <one-to-one field="notification" nullable="true" target-entity="Creativestyle\Component\Notification\Model\NotificationInterface">
+        <one-to-one field="notification" inversed-by="insiteNotification" target-entity="Creativestyle\Component\Notification\Model\NotificationInterface">
+            <cascade>
+                <cascade-all/>
+            </cascade>
+            <join-column name="notification_id" referenced-column-name="id" on-delete="SET NULL" />
         </one-to-one>
         <field name="title" type="string" />
         <field name="textContent" type="text" />
