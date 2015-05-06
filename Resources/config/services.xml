@@ -83,13 +83,6 @@
         >
             <argument type="service" id="twig" />
         </service>
-        <service 
-            id="creativestyle_notification.factory.insite_notification"
-            class="%creativestyle_notification.factory.insite_notification.class%"
-        >
-            <argument>%creativestyle_notification.model.insite_notification.class%</argument>
-            <argument type="service" id="creativestyle_notification.template.renderer" />
-            <argument type="service" id="creativestyle.notificator.insite.template_resolver" />
-        </service>
+
     </services>
 </container>

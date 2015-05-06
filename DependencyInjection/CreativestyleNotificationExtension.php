@@ -2,6 +2,7 @@
 
 namespace Creativestyle\Bundle\NotificationBundle\DependencyInjection;
 
+use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
@@ -107,6 +108,11 @@ class CreativestyleNotificationExtension extends Extension
 
     protected function createInsiteNotificator($container, $config)
     {
+        $container->setDefinition(
+            'creativestyle_notification.factory.insite_notification',
+            $this->getInsiteNotificationFactoryDefinition($container)
+        );
+
         $templateResolverKey = 'creativestyle.notificator.insite.template_resolver';
         $templates = $config['notification']['insite']['templates'];
 
@@ -248,6 +254,18 @@ class CreativestyleNotificationExtension extends Extension
         $definition = new Definition($builderClass);
         $definition
             ->addArgument(new Reference($strategyProviderKey))
+        ;
+
+        return $definition;
+    }
+
+    private function getInsiteNotificationFactoryDefinition(Container $container)
+    {
+        $factoryClass = $container->getParameter('creativestyle_notification.factory.insite_notification.class');
+        $definition = new Definition($factoryClass);
+        $definition
+            ->addArgument(new Reference('creativestyle_notification.template.renderer'))
+            ->addArgument(new Reference('creativestyle.notificator.insite.template_resolver'))
         ;
 
         return $definition;
