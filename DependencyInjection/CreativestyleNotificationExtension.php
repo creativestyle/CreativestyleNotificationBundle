@@ -108,9 +108,11 @@ class CreativestyleNotificationExtension extends Extension
 
     protected function createInsiteNotificator($container, $config)
     {
+        $insiteNotifyModel = $config['notification']['insite']['model_class'];
+
         $container->setDefinition(
             'creativestyle_notification.factory.insite_notification',
-            $this->getInsiteNotificationFactoryDefinition($container)
+            $this->getInsiteNotificationFactoryDefinition($insiteNotifyModel, $container)
         );
 
         $templateResolverKey = 'creativestyle.notificator.insite.template_resolver';
@@ -259,11 +261,12 @@ class CreativestyleNotificationExtension extends Extension
         return $definition;
     }
 
-    private function getInsiteNotificationFactoryDefinition(Container $container)
+    private function getInsiteNotificationFactoryDefinition($modelClass, Container $container)
     {
         $factoryClass = $container->getParameter('creativestyle_notification.factory.insite_notification.class');
         $definition = new Definition($factoryClass);
         $definition
+            ->addArgument($modelClass)
             ->addArgument(new Reference('creativestyle_notification.template.renderer'))
             ->addArgument(new Reference('creativestyle.notificator.insite.template_resolver'))
         ;
