@@ -143,7 +143,7 @@ namespace Acme\AppBundle\Notification\BuildStrategy;
 
 use Creativestyle\Component\Notification\Builder\Strategy\BuildStrategyInterface;
 
-use Acme/AppBundle/Model/MyObjectInterface;
+use Acme\AppBundle\Model\MyObjectInterface;
 
 class MyObjectBuildStrategy implements BuildStrategyInterface
 {
