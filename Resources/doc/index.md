@@ -7,10 +7,11 @@ Getting Started With CreativestyleNotificationBundle
 2. Enable the Bundle
 3. Create your Notification class
 4. Configure your application's config.yml
-5. Create your notification build strategy
-6. Register your notification
-
-7.
+5. Prepare your email template
+6. Create your notification build strategy
+7. Register your notification build strategy
+8. Update your database schema
+9. Dispatch your notification
 
 ### Step 1: Download CreativestyleNotificationBundle using composer
 
