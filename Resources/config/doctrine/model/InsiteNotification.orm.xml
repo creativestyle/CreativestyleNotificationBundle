@@ -23,7 +23,7 @@
         <field name="isRead" column="is_read" type="boolean" />
         <field name="date" type="datetime" />
         <many-to-one field="subscriber" target-entity="Creativestyle\Component\Notification\Model\SubscriberInterface" on-delete="SET NULL">
-            <join-column name="subscriber_id" referenced-column-name="id" nullable="true" />
+            <join-column name="subscriber_id" referenced-column-name="id" nullable="true" on-delete="CASCADE"/>
         </many-to-one>
     </mapped-superclass>
 
