@@ -15,11 +15,6 @@
         <many-to-one field="broadcaster" target-entity="Creativestyle\Component\Notification\Model\BroadcasterInterface">
             <join-column name="broadcaster_id" referenced-column-name="id" on-delete="SET NULL" nullable="true"/>
         </many-to-one>
-        <one-to-one field="insiteNotification" target-entity="Creativestyle\Component\Notification\Model\InsiteNotificationInterface">
-            <cascade>
-                <cascade-all/>
-            </cascade>
-        </one-to-one>
         <field name="objectId" column="object_id" type="integer" />
         <field name="isRead" column="is_read" type="boolean" />
         <field name="objectType" column="object_type" type="string" />
