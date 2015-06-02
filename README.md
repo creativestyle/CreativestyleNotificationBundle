@@ -1,5 +1,5 @@
-Notification Component
-======================
+Notification Bundle
+====================
 
 Creativestyle NotificationBundle provides a solution to manage
 insite & email notification methods for Symfony2 applications.
