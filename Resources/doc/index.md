@@ -18,7 +18,7 @@ Getting Started With CreativestyleNotificationBundle
 Add CreativestyleNotificationBundle by running the command:
 
 ``` bash
-$ php composer.phar require creativestyle/notification-bundle "~2.0@dev"
+$ php composer.phar require creativestyle/notification-bundle "v1.0"
 ```
 
 Composer will install the bundle to your project's `vendor/creativestyle` directory.
