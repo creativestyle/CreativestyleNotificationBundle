@@ -184,7 +184,7 @@ In YAML:
   notification.build_strategy.thesis:
     class: Acme\AppBundle\Notification\BuildStrategy\MyObjectBuildStrategy
     arguments:
-        - "Acme/AppBundle/Entity/Notification"
+      - "Acme/AppBundle/Entity/Notification"
     tags:
       - {name: creativestyle_notification.build_strategy, type="sth_happens_with_object" }
       - {name: creativestyle_notification.build_strategy, type="sth_other_happens_with_object" }
