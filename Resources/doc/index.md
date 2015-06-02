@@ -225,7 +225,7 @@ class MyObjectController extends Controller
         // ...
     }
 }
-
+```
 
 ### Next Steps
 
