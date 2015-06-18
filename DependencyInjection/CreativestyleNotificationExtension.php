@@ -28,12 +28,23 @@ class CreativestyleNotificationExtension extends Extension
 
         $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.xml');
+        $container->setParameter(
+            'creativestyle.notificator.email.sender_name',
+            $config['notificator']['email']['sender_name']
+        );
 
-        $this->createServices($container, $config);
+        $container->setParameter(
+            'creativestyle.notificator.email.sender_email',
+            $config['notificator']['email']['sender_email']
+        );
+
         $container->setParameter(
             'creativestyle_notification.model.insite_notification.class',
             $config['notification']['insite']['model_class']
         );
+
+        $this->createServices($container, $config);
+
     }
 
     protected function createServices(ContainerBuilder $container, $config)
@@ -195,6 +206,7 @@ class CreativestyleNotificationExtension extends Extension
         $definition
             ->addArgument(new Reference('creativestyle_notification.mailer'))
             ->addArgument(new Reference($templateResolverKey))
+            ->addArgument($container->getParameter('creativestyle.notificator.email.sender_email'))
         ;
 
         return $definition;
