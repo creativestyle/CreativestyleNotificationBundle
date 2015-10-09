@@ -44,7 +44,6 @@ class CreativestyleNotificationExtension extends Extension
         );
 
         $this->createServices($container, $config);
-
     }
 
     protected function createServices(ContainerBuilder $container, $config)
@@ -80,12 +79,12 @@ class CreativestyleNotificationExtension extends Extension
             $this->getDBNotificatorDefinition($container, $config['notification']['insite']['enable'])
         );
 
-        $container->setDefinition(
-            'creativestyle_notification.listener.db_notificator',
-            $this->getListenerDefinition(
-                $dbNotificatorKey
-            )
-        );
+//        $container->setDefinition(
+//            'creativestyle_notification.listener.db_notificator',
+//            $this->getListenerDefinition(
+//                $dbNotificatorKey
+//            )
+//        );
     }
 
     protected function createEmailNotificator($container, $config)
@@ -109,12 +108,12 @@ class CreativestyleNotificationExtension extends Extension
             );
         }
         
-        $container->setDefinition(
-            'creativestyle_notification.listener.email_notificator',
-            $this->getListenerDefinition(
-                $emailNotificatorKey
-            )
-        );
+//        $container->setDefinition(
+//            'creativestyle_notification.listener.email_notificator',
+//            $this->getListenerDefinition(
+//                $emailNotificatorKey
+//            )
+//        );
     }
 
     protected function createInsiteNotificator($container, $config)
@@ -180,6 +179,7 @@ class CreativestyleNotificationExtension extends Extension
         $definition = new Definition($dbNotificatorClass);
         $definition
             ->addArgument(new Reference('creativestyle_notification.manager.notification_manager'))
+            ->addTag('creativestyle_notification.notificator')
         ;
 
         if ($enableInsite) {
@@ -207,6 +207,7 @@ class CreativestyleNotificationExtension extends Extension
             ->addArgument(new Reference('creativestyle_notification.mailer'))
             ->addArgument(new Reference($templateResolverKey))
             ->addArgument($container->getParameter('creativestyle.notificator.email.sender_email'))
+            ->addTag('creativestyle_notification.notificator')
         ;
 
         return $definition;

@@ -2,10 +2,12 @@
 
 namespace Creativestyle\Bundle\NotificationBundle;
 
+use Creativestyle\Bundle\NotificationBundle\DependencyInjection\Compiler\RegisterNotificatorListenersPass;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Doctrine\Bundle\DoctrineBundle\DependencyInjection\Compiler\DoctrineOrmMappingsPass;
 use Creativestyle\Bundle\NotificationBundle\DependencyInjection\Compiler\RegisterBuildStrategyPass;
+
 class CreativestyleNotificationBundle extends Bundle
 {
     public function build(ContainerBuilder $container)
@@ -16,5 +18,6 @@ class CreativestyleNotificationBundle extends Bundle
 
         $container->addCompilerPass(DoctrineOrmMappingsPass::createXmlMappingDriver($mappings));
         $container->addCompilerPass(new RegisterBuildStrategyPass());
+        $container->addCompilerPass(new RegisterNotificatorListenersPass());
     }
 }

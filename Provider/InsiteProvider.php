@@ -38,7 +38,12 @@ class InsiteProvider
             } catch (\RuntimeException $e) {
                 continue;
             }
-            $collection[] = $this->transformToInsiteNotification($notify);
+
+            try {
+                $collection[] = $this->transformToInsiteNotification($notify);
+            } catch (\Exception $e) {
+
+            }
         }
 
         return $collection;
