@@ -57,16 +57,14 @@
         </service>
 
         <service id="creativestyle.repository.notification"
-                 class="%creativestyle_notification.notification_repository.class%"
-                 factory-service="doctrine.orm.entity_manager"
-                 factory-method="getRepository">
+                 class="%creativestyle_notification.notification_repository.class%">
+                 <factory service="doctrine.orm.entity_manager" method="getRepository"/>
                 <argument>%creativestyle_notification.notification.class%</argument>
         </service>
 
         <service id="creativestyle.repository.insite_notification"
-                 class="%creativestyle_notification.notification_repository.class%"
-                 factory-service="doctrine.orm.entity_manager"
-                 factory-method="getRepository">
+                 class="%creativestyle_notification.notification_repository.class%">
+                <factory service="doctrine.orm.entity_manager" method="getRepository"/>
                 <argument>%creativestyle_notification.model.insite_notification.class%</argument>
         </service>
 
