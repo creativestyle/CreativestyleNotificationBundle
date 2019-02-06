@@ -56,7 +56,6 @@ class Configuration implements ConfigurationInterface
                             ->children()
                                 ->booleanNode('enable')
                                     ->defaultValue(false)
-                                    ->cannotBeEmpty()
                                 ->end()
                                 ->scalarNode('sender_name')
                                     ->defaultValue('creativestyle')
